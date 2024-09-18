@@ -1,0 +1,28 @@
+name: Links Checker
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  schedule:
+    # At 09:00 on Monday: https://crontab.guru/#0_9_*_*_1
+    - cron: "0 9 * * 1"
+  push:
+    branches:
+      - master
+
+jobs:
+  links_checker:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --no-progress --timeout 10 --exclude '.*' --include '.*github\.com\/.+\/.+' -- './README.md'
+          output: ./lychee/out.md
+          token: ${{ secrets.GITHUB_TOKEN }}
